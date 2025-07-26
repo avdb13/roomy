@@ -16,3 +16,4 @@ export * from "./user.js";
 export * from "./folder.js";
 export * from "./permissions.js";
 export * from "./import.js";
+export * from "./matrix.js";

@@ -89,6 +89,13 @@
     </h2>
 
     <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+      <div class="sm:col-span-4">
+        <p
+          class="block text-sm/6 font-semibold text-base-700 bg-slate-200 rounded-xs p-1 text-center dark:text-base-100"
+          >{space.current?.id || "Unknown"}</p
+        >
+      </div>
+
       <div class="col-span-full">
         <label
           for="photo"

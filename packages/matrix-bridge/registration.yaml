@@ -1,0 +1,14 @@
+id: roomy
+hs_token: 010b37932a0e4310d555c8c6b9b4e4f93ec1f816003fa0b89bec1983e31673d2
+as_token: f980ea789b6dbb8ec9989e05530bfd34ad138170e7fef5b0a8d1c19f967cb094
+url: https://kurosaki.cx
+sender_localpart: _roomy_bot
+protocols:
+  - roomy
+namespaces:
+  users:
+    - exclusive: true
+      regex: '@_roomy_.*:kurosaki.cx'
+  aliases:
+    - exclusive: true
+      regex: '#_roomy_.*:kurosaki.cx'

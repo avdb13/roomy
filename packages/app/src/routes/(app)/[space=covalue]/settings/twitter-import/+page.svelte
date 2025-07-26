@@ -413,14 +413,14 @@
 
   const permissions = $derived(
     new CoState(
-      SpacePermissionsComponent.schema,
+      SpacePermissionsComponent,
       space?.current?.components?.[SpacePermissionsComponent.id],
     ),
   );
 
   const allThreads = $derived(
     new CoState(
-      AllThreadsComponent.schema,
+      AllThreadsComponent,
       space?.current?.components?.[AllThreadsComponent.id],
     ),
   );

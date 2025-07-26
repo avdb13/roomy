@@ -25,7 +25,7 @@
     space,
     level = 0,
   }: {
-    children: co.loaded<typeof ChildrenComponent.schema> | undefined | null;
+    children: co.loaded<typeof ChildrenComponent> | undefined | null;
     me: co.loaded<typeof RoomyAccount> | undefined | null;
     isEditing?: boolean;
     editEntity?: (entity: co.loaded<typeof RoomyEntity>) => void;

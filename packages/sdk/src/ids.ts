@@ -9,3 +9,5 @@ export const allAccountsListId = "co_zmTwtanVtug13XScG9sbDoodfeq";
 export const discoverableSpacesFeedId = "co_zc1wuK3KuNr9dFQw3UsziPQPJUJ";
 
 export const discordBridgeBotAccountId = "co_zYLqcS6KRW59fTTJnhkbbCt1KH";
+
+export const matrixBridgeBotAccountId = 'co_z3zrp3tKU8kDxNfJ9fSkEa6Q9fW';

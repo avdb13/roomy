@@ -1,0 +1,45 @@
+{
+  "name": "matrix-bridge",
+  "version": "1.0.0",
+  "description": "Bridge between Matrix and Roomy",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "NODE_OPTIONS='--import ./src/loader.ts --experimental-wasm-modules --no-deprecation --no-warnings' ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
+    "@opentelemetry/resources": "^2.0.1",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.1",
+    "@opentelemetry/semantic-conventions": "^1.36.0",
+    "@roomy-chat/sdk": "workspace:*",
+    "@whatwg-node/server": "^0.10.11",
+    "classic-level": "^3.0.0",
+    "dotenv": "^17.2.1",
+    "itty-router": "^5.0.20",
+    "jazz-tools": "catalog:",
+    "marked": "^15.0.12",
+    "turndown": "^7.2.0",
+    "undici": "^7",
+    "js-yaml": "^4.1.0",
+    "matrix-appservice-bridge": "^10.3.1",
+    "@vector-im/matrix-bot-sdk": "^0.7.1-element.11",
+    "nedb": "^1.8.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "winston-transport": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.15.17",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

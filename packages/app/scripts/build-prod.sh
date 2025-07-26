@@ -2,7 +2,7 @@
 
 npm run build-web-app
 
-target_url=https://roomy.space
+target_url=https://inv.kurosaki.cx
 
 # Add oauth-client configuration
 echo "{

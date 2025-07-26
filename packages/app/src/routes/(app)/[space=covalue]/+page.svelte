@@ -20,7 +20,7 @@
   async function navigateToFirstChildThreadOrPage(id: string) {
     if (!space.current || !id) return;
 
-    const children = await ChildrenComponent.schema.load(id, {
+    const children = await ChildrenComponent.load(id, {
       resolve: {
         $each: {
           components: {

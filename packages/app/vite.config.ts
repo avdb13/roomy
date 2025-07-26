@@ -23,5 +23,6 @@ export default defineConfig({
     fs: {
       allow: [allowDir],
     },
+    allowedHosts: ['inv.kurosaki.cx', 'lemon.seedhost.eu']
   },
 });

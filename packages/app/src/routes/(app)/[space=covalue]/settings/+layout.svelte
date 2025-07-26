@@ -44,6 +44,13 @@
         href={`/${page.params.space}/settings/discord-bridge`}
         >Discord Bridge
       </Button>
+      <Button
+        variant="ghost"
+        class="w-full justify-start"
+        data-current={page.url.pathname.includes("matrix-bridge")}
+        href={`/${page.params.space}/settings/matrix-bridge`}
+        >Matrix Bridge
+      </Button>
     </div>
   {/snippet}
 

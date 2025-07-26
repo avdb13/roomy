@@ -56,7 +56,7 @@
 
   let permissions = $derived(
     new CoState(
-      SpacePermissionsComponent.schema,
+      SpacePermissionsComponent,
       space.current?.components?.[SpacePermissionsComponent.id],
     ),
   );
@@ -74,14 +74,14 @@
 
   let threadContent = $derived(
     new CoState(
-      ThreadComponent.schema,
+      ThreadComponent,
       threadObject.current?.components?.[ThreadComponent.id],
     ),
   );
 
   let bannedAccounts = $derived(
     new CoState(
-      BansComponent.schema,
+      BansComponent,
       space.current?.components?.[BansComponent.id],
     ),
   );
@@ -206,14 +206,14 @@
 
     const allThreadsId = space.current?.components?.[AllThreadsComponent.id];
     if (allThreadsId) {
-      const allThreads = await AllThreadsComponent.schema.load(allThreadsId);
+      const allThreads = await AllThreadsComponent.load(allThreadsId);
       allThreads?.push(newThread.roomyObject);
     }
 
     const subThreadsId =
       threadObject.current?.components?.[SubThreadsComponent.id];
     if (subThreadsId) {
-      const subThreads = await SubThreadsComponent.schema.load(subThreadsId);
+      const subThreads = await SubThreadsComponent.load(subThreadsId);
       subThreads?.push(newThread.roomyObject);
     }
 
@@ -378,7 +378,7 @@
 
   let members = $derived(
     new CoState(
-      AllMembersComponent.schema,
+      AllMembersComponent,
       space.current?.components?.[AllMembersComponent.id],
       {
         resolve: {
@@ -412,7 +412,7 @@
 
   const threadFeed = $derived(
     new CoState(
-      AllThreadsComponent.schema,
+      AllThreadsComponent,
       space.current?.components?.[AllThreadsComponent.id],
     ),
   );

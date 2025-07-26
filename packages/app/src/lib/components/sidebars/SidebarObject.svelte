@@ -35,7 +35,7 @@
 
   let children = $derived(
     new CoState(
-      ChildrenComponent.schema,
+      ChildrenComponent,
       object?.components?.[ChildrenComponent.id],
       {
         resolve: {
@@ -54,14 +54,14 @@
   const thread = $derived(
     object?.components?.[ThreadComponent.id]
       ? new CoState(
-          ThreadComponent.schema,
+          ThreadComponent,
           object?.components?.[ThreadComponent.id],
         )
       : null,
   );
 
   let bannedAccounts = $derived(
-    new CoState(BansComponent.schema, space?.components?.[BansComponent.id]),
+    new CoState(BansComponent, space?.components?.[BansComponent.id]),
   );
   let bannedAccountsSet = $derived(new Set(bannedAccounts.current ?? []));
 

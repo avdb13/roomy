@@ -36,7 +36,7 @@
 
   let children = $derived(
     new CoState(
-      ChildrenComponent.schema,
+      ChildrenComponent,
       space?.current?.components?.[ChildrenComponent.id],
       {
         resolve: {

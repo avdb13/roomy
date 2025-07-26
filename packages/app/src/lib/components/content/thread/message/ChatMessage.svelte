@@ -83,6 +83,7 @@
 
   let isImportedMessage = $derived(
     message.current?.author?.startsWith("discord:") ||
+      message.current?.author?.startsWith("matrix:") ||
       message.current?.author?.startsWith("app:") ||
       message.current?.author?.startsWith("atproto"),
   );
@@ -99,6 +100,16 @@
         return {
           name: `${author?.[2] ?? author?.[1] ?? "Unknown"} (@${author?.[1] ?? "unknown"})`,
           imageUrl: avatarUrl,
+          id: undefined,
+        };
+      } else if (message.current?.author?.startsWith("matrix:")) {
+        // Matrix format: matrix:userId
+        const author = message.current?.author
+          ?.substring("matrix:".length)
+          .split("#");
+        return {
+          name: author?.[0] ?? "Unknown",
+          imageUrl: author?.[1],
           id: undefined,
         };
       } else {
