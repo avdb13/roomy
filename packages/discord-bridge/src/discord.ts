@@ -1,23 +1,20 @@
 import { Client, Events, GatewayIntentBits, TextChannel } from "discord.js";
 import { Dispatcher } from "undici";
 
-export async function setupDiscordClient(token: string, envHttpProxyAgent: Dispatcher): Promise<Client> {
+export async function setupDiscordClient(token: string): Promise<Client> {
   const client = new Client({
-    rest: {
-      agent: envHttpProxyAgent,
-    },
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
-    ]
+    ],
   });
-  
+
   await client.login(token);
-  
+
   // Wait for client to be ready
   await new Promise<void>((resolve) => {
-    client.once('ready', () => {
+    client.once("ready", () => {
       console.log(`Discord client logged in as ${client.user?.tag}`);
       resolve();
     });
@@ -29,33 +26,37 @@ export async function setupDiscordClient(token: string, envHttpProxyAgent: Dispa
 export async function findOrCreateWebhook(channel: TextChannel) {
   try {
     const webhooks = await channel.fetchWebhooks();
-    let webhook = webhooks.find(wh => wh.name === 'Roomy Bridge');
-    
+    let webhook = webhooks.find((wh) => wh.name === "Roomy Bridge");
+
     if (!webhook) {
       webhook = await channel.createWebhook({
-        name: 'Roomy Bridge',
-        reason: 'Bridge messages from Roomy to Discord',
+        name: "Roomy Bridge",
+        reason: "Bridge messages from Roomy to Discord",
       });
     }
-    
+
     return webhook;
   } catch (error) {
-    console.error('Error creating webhook:', error);
-    throw new Error('Failed to create webhook for message customization');
+    console.error("Error creating webhook:", error);
+    throw new Error("Failed to create webhook for message customization");
   }
 }
 
-export async function sendMessageToDiscord(client: Client, channel: TextChannel, message: {
-  username: string,
-  content: string,
-  avatarUrl: string
-}) {
+export async function sendMessageToDiscord(
+  client: Client,
+  channel: TextChannel,
+  message: {
+    username: string;
+    content: string;
+    avatarUrl: string;
+  }
+) {
   let webhook = await findOrCreateWebhook(channel);
 
   await webhook.send({
     content: message.content,
     username: message.username,
-    avatarURL: message.avatarUrl || undefined
+    avatarURL: message.avatarUrl || undefined,
   });
 }
 
@@ -67,9 +68,8 @@ export type DiscordMessage = {
   author: {
     username: string;
     avatarUrl: string;
-  }
-}
-
+  };
+};
 
 export async function startListeningToDiscord(
   client: Client,
@@ -88,19 +88,17 @@ export async function startListeningToDiscord(
       author: {
         username: discordMessage.author.username,
         avatarUrl: discordMessage.author.displayAvatarURL(),
-      }
-    })
+      },
+    });
   });
 }
 
 export async function getChannels(client: Client, guildId: string) {
   const guild = await client.guilds.fetch(guildId);
-  if(!guild) return;
+  if (!guild) return;
 
   const channels = await guild.channels.fetch();
-  const textChannels = channels.filter(channel => 
-    channel?.type === 0
-  );
+  const textChannels = channels.filter((channel) => channel?.type === 0);
 
   return textChannels;
 }

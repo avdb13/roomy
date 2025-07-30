@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { env } from "$env/dynamic/public";
   import { Badge, Button, Input } from "@fuxui/base";
   import {
     DiscordBridgeRequest,
@@ -69,12 +70,7 @@
   async function checkBotStatus() {
     try {
       // add random id to avoid service worker caching
-      const res = await fetch(
-        "http://localhost:3001/health?id=" + Math.random(),
-        {
-          cache: "no-store",
-        },
-      );
+      const res = await fetch("http://localhost:3001/health");
       const body = await res.json();
       botStatus = body.status === "ok" ? "online" : "offline";
     } catch (err) {
@@ -143,8 +139,7 @@
           <div class="mt-2">
             <Button
               target="_blank"
-              href="https://discord.com/oauth2/authorize?client_id=1382088278001586307"
-              >Add bot</Button
+              href={env.PUBLIC_DISCORD_BRIDGE_BOT_INVITE_LINK}>Add bot</Button
             >
           </div>
         </div>

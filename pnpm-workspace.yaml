@@ -10,4 +10,4 @@ onlyBuiltDependencies:
 catalog:
   jazz-tools: ^0.15
 patchedDependencies:
-  '@discordjs/util': patches/@discordjs__util.patch
+  "@discordeno/gateway": patches/@discordeno__gateway.patch
