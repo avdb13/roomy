@@ -56,7 +56,7 @@ self.addEventListener("fetch", (event: FetchEvent) => {
     try {
       const response = await fetch(event.request);
 
-      if (response.status === 200) {
+      if (response.status === 200 && globalThis.location.host == url.host) {
         cache.put(event.request, response.clone());
       }
 

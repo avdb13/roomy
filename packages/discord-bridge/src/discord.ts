@@ -1,5 +1,4 @@
 import { Client, Events, GatewayIntentBits, TextChannel } from "discord.js";
-import { Dispatcher } from "undici";
 
 export async function setupDiscordClient(token: string): Promise<Client> {
   const client = new Client({
@@ -49,7 +48,7 @@ export async function sendMessageToDiscord(
     username: string;
     content: string;
     avatarUrl: string;
-  }
+  },
 ) {
   let webhook = await findOrCreateWebhook(channel);
 
@@ -73,7 +72,7 @@ export type DiscordMessage = {
 
 export async function startListeningToDiscord(
   client: Client,
-  onMessage: (message: {}) => void
+  onMessage: (message: {}) => void,
 ) {
   client.on(Events.MessageCreate, async (discordMessage) => {
     if (discordMessage.author.bot) return;

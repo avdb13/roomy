@@ -17,7 +17,6 @@
     "@types/turndown": "^5.0.5",
     "@whatwg-node/server": "^0.10.11",
     "classic-level": "^3.0.0",
-    "discord.js": "^14.19.3",
     "dotenv": "^17.2.1",
     "itty-router": "^5.0.20",
     "jazz-tools": "catalog:",
