@@ -215,6 +215,7 @@ const bot = createBot({
               name: "space-id",
               description: "The ID of the Roomy space to connect to.",
               type: ApplicationCommandOptionTypes.String,
+              required: true,
             },
           ],
         },
@@ -222,6 +223,13 @@ const bot = createBot({
           name: "disconnect-roomy-space",
           description:
             "Disconnect the bridged Roomy space if one is connected.",
+          contexts: [DiscordInteractionContextType.Guild],
+          integrationTypes: [DiscordApplicationIntegrationType.GuildInstall],
+          defaultMemberPermissions: ["ADMINISTRATOR"],
+        },
+        {
+          name: "roomy-status",
+          description: "Get the current status of the Roomy Discord bridge.",
           contexts: [DiscordInteractionContextType.Guild],
           integrationTypes: [DiscordApplicationIntegrationType.GuildInstall],
           defaultMemberPermissions: ["ADMINISTRATOR"],
@@ -240,7 +248,17 @@ const bot = createBot({
       }
 
       if (interaction.type == InteractionTypes.ApplicationCommand) {
-        if (interaction.data?.name == "connect-roomy-space") {
+        if (interaction.data?.name == "roomy-status") {
+          const spaceId = await registeredBridges.get_spaceId(
+            guildId.toString(),
+          );
+          interaction.respond({
+            flags: MessageFlags.Ephemeral,
+            content: spaceId
+              ? `✅ This Discord server is actively bridged to a Roomy [space](https://roomy.space/${spaceId}).`
+              : "🔌 The Discord bridge is not connected to a Roomy space.",
+          });
+        } else if (interaction.data?.name == "connect-roomy-space") {
           const spaceId = interaction.data.options?.find(
             (x) => x.name == "space-id",
           )?.value as string;
@@ -274,7 +292,23 @@ const bot = createBot({
             return;
           }
 
-          registeredBridges.register({ guildId: guildId.toString(), spaceId });
+          const existingRegistration = await registeredBridges.get_spaceId(
+            guildId.toString(),
+          );
+          if (existingRegistration) {
+            interaction.respond({
+              flags: MessageFlags.Ephemeral,
+              content:
+                `🛑 This Discord server is already bridge to another Roomy [space](https://roomy.space/${existingRegistration}).` +
+                " If you want to connect to a new space, first disconnect it using the `/disconnect-roomy-space` command.",
+            });
+            return;
+          }
+
+          await registeredBridges.register({
+            guildId: guildId.toString(),
+            spaceId,
+          });
 
           interaction.respond({
             flags: MessageFlags.Ephemeral,

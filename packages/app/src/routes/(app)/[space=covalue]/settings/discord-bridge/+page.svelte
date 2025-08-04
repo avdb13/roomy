@@ -89,15 +89,21 @@
   }
 
   onMount(() => {
-    // Refresh the bridge status every 10 seconds if the user is on the page.
-    const interval = setInterval(() => {
+    let interval: undefined | ReturnType<typeof setInterval>;
+    const updateStatus = () => {
       if (document.visibilityState == "visible") {
+        console.log("checking discord bridge status");
         updateBridgeStatus();
+        interval = setInterval(updateStatus, 4000);
+      } else {
+        if (interval) clearInterval(interval);
       }
-    }, 4000);
+    };
+    updateStatus();
+    document.addEventListener("visibilitychange", updateStatus);
 
     return () => {
-      clearInterval(interval);
+      document.removeEventListener("visibilitychange", updateStatus);
     };
   });
   $effect(() => {
@@ -130,11 +136,14 @@
         {@render bridgeStatusBadge()}
       </h2>
 
-      <p>
-        The Discord bridge is connected! You can disconnect it by going to
-        Discord and running the slash command: <code
-          class="bg-base-800 p-1 rounded">/disconnect-roomy-space</code
-        >
+      <p class="text-base/8">
+        The Discord bridge is connected! This Roomy Space is bridge to your <a
+          class="text-accent-500 underline underline-offset-3"
+          href={`https://discord.com/channels/${bridgeStatus.guildId}`}
+          target="_blank">Discord server</a
+        >. You can disconnect it by going to Discord and running the slash
+        command:
+        <code class="bg-base-800 p-1 rounded">/disconnect-roomy-space</code>.
       </p>
     </div>
   </form>
