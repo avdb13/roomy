@@ -88,16 +88,23 @@
     toast.success("Revoked granted bot permissions.");
   }
 
+  // Reload app when this module changes to prevent stacking the setIntervals
+  if (import.meta.hot) {
+    import.meta.hot.accept(() => {
+      window.location.reload();
+    });
+  }
   onMount(() => {
     let interval: undefined | ReturnType<typeof setInterval>;
     const updateStatus = () => {
       if (document.visibilityState == "visible") {
         console.log("checking discord bridge status");
         updateBridgeStatus();
-        interval = setInterval(updateStatus, 4000);
+        interval = setInterval(updateStatus, 8000);
       } else {
         if (interval) clearInterval(interval);
       }
+      
     };
     updateStatus();
     document.addEventListener("visibilitychange", updateStatus);
