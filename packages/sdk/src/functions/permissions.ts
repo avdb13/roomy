@@ -69,7 +69,7 @@ export async function hasFullWritePermissions(
   const permissionsId = space.components?.[SpacePermissionsComponent.id];
   if (!permissionsId) throw new Error("Space permissions component missing");
   const permissions =
-    await SpacePermissionsComponent.schema.load(permissionsId);
+    await SpacePermissionsComponent.load(permissionsId);
   if (!permissions) throw new Error("Space permissions component missing");
 
   for (const permId of Object.values(AllPermissions)) {
@@ -96,7 +96,7 @@ export async function grantFullWritePermissions(
   const permissionsId = space?.components?.[SpacePermissionsComponent.id];
   if (!permissionsId) throw new Error("Space permissions component missing");
   const permissions =
-    await SpacePermissionsComponent.schema.load(permissionsId);
+    await SpacePermissionsComponent.load(permissionsId);
   if (!permissions) throw new Error("Space permissions component missing");
 
   for (const permId of Object.values(AllPermissions)) {
@@ -118,7 +118,7 @@ export async function revokeFullWritePermissions(
   const permissionsId = space?.components?.[SpacePermissionsComponent.id];
   if (!permissionsId) throw new Error("Space permissions component missing");
   const permissions =
-    await SpacePermissionsComponent.schema.load(permissionsId);
+    await SpacePermissionsComponent.load(permissionsId);
   if (!permissions) throw new Error("Space permissions component missing");
 
   for (const permId of Object.values(AllPermissions)) {

@@ -37,7 +37,7 @@ export async function createThread(
   subThreadsGroup.addMember(publicReadGroup!, "reader");
   subThreadsGroup.addMember(addThreadsGroup!, "writer");
 
-  const thread = ThreadComponent.schema.create(
+  const thread = ThreadComponent.create(
     {
       timeline: Timeline.create([], timelineGroup),
     },
@@ -69,7 +69,7 @@ export async function createThread(
   }
   roomyObject.components[ThreadComponent.id] = thread.id;
 
-  const subThreads = SubThreadsComponent.schema.create([], subThreadsGroup);
+  const subThreads = SubThreadsComponent.create([], subThreadsGroup);
   roomyObject.components[SubThreadsComponent.id] = subThreads.id;
 
   return { roomyObject, thread };
@@ -90,8 +90,8 @@ export type VideoUrlEmbedCreate = {
 };
 
 interface CreateMessageOptions {
-  replyTo?: string,
-  permissions?: Record<string, string>
+  replyTo?: string;
+  permissions?: Record<string, string>;
   embeds?: (ImageUrlEmbedCreate | VideoUrlEmbedCreate)[];
   created?: Date;
   updated?: Date;
@@ -99,7 +99,7 @@ interface CreateMessageOptions {
 
 export async function createMessage(
   input: string,
-  opts?: CreateMessageOptions
+  opts?: CreateMessageOptions,
 ) {
   let permissions = opts?.permissions || {};
   const publicReadGroupId = permissions?.[AllPermissions.publicRead]!;

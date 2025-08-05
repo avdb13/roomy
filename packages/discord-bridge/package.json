@@ -13,6 +13,12 @@
   },
   "dependencies": {
     "@discordeno/bot": "^21.0.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
+    "@opentelemetry/resources": "^2.0.1",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.1",
+    "@opentelemetry/semantic-conventions": "^1.36.0",
     "@roomy-chat/sdk": "workspace:*",
     "@types/turndown": "^5.0.5",
     "@whatwg-node/server": "^0.10.11",

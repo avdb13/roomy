@@ -5,9 +5,14 @@ const db = new ClassicLevel(process.env.DATA_DIR || "./data", {
   valueEncoding: "json",
 });
 
+export const discordLatestMessageInChannel = db.sublevel(
+  "discordLatestMessageInChannel",
+);
+
 type BidirectionalSublevelMap<A extends string, B extends string> = {
   register: (entry: { [K in A | B]: string }) => Promise<void>;
   unregister: (entry: { [K in A | B]: string }) => Promise<void>;
+  clear: () => Promise<void>;
   sublevel: any;
 } & {
   [K in `get_${A}`]: (b: string) => Promise<string | undefined>;
@@ -58,6 +63,9 @@ function createBidirectionalSublevelMap<A extends string, B extends string>(
         },
       ]);
     },
+    async clear() {
+      await this.sublevel.clear();
+    },
     async register(entry: { [K in A | B]: string }) {
       // Make sure we haven't already registered a bridge for this guild or space.
       if (
@@ -84,12 +92,12 @@ function createBidirectionalSublevelMap<A extends string, B extends string>(
 }
 
 export const registeredBridges = createBidirectionalSublevelMap(
-  "registered_bridges",
+  "registeredBridges",
   "guildId",
   "spaceId",
 );
-export const syncedMessages = createBidirectionalSublevelMap(
-  "synced_messages",
+export const syncedIds = createBidirectionalSublevelMap(
+  "syncedIds",
   "discordId",
   "roomyId",
 );

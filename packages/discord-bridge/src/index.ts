@@ -1,12 +1,18 @@
-import "./httpProxy.js";
+import "./httpProxy";
+import "./otel";
 import "dotenv/config";
-import { startBot } from "./discordBot.js";
-import { startApi } from "./api.js";
+import { startBot } from "./discordBot";
+import { startApi } from "./api";
+import { trace } from "@opentelemetry/api";
+
+const tracer = trace.getTracer("index");
 
 // Graceful shutdown
 function shutdown() {
-  console.log("Shutting down Discord Bridge server...");
-  process.exit(0);
+  tracer.startActiveSpan("shutdown", (span) => {
+    span.end();
+    process.exit(0);
+  });
 }
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);

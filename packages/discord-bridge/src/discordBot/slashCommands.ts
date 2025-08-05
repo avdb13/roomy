@@ -11,9 +11,9 @@ import {
 } from "@discordeno/bot";
 
 import { co, hasFullWritePermissions, RoomyEntity } from "@roomy-chat/sdk";
-import { registeredBridges } from "./db";
-import { jazz } from "./jazz";
-import { desiredProperties } from "./discordBot";
+import { registeredBridges } from "../db";
+import { jazz } from "../jazz";
+import { desiredProperties } from "../discordBot";
 
 export const slashCommands = [
   {

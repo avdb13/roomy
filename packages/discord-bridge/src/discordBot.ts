@@ -1,11 +1,38 @@
 import {
+  Bot,
+  Channel,
+  ChannelTypes,
+  CompleteDesiredProperties,
   createBot,
   Intents,
+  Message,
   RecursivePartial,
+  SetupDesiredProps,
   TransformersDesiredProperties,
 } from "@discordeno/bot";
 import { DISCORD_TOKEN } from "./env";
-import { handleSlashCommandInteraction, slashCommands } from "./slashCommands";
+import {
+  handleSlashCommandInteraction,
+  slashCommands,
+} from "./discordBot/slashCommands";
+
+import {
+  discordLatestMessageInChannel,
+  registeredBridges,
+  syncedIds as syncedIds,
+} from "./db";
+import { SpanStatusCode, trace } from "@opentelemetry/api";
+import {
+  co,
+  createMessage,
+  RoomyEntity,
+  SpacePermissionsComponent,
+  z,
+  createThread,
+  getComponent,
+} from "@roomy-chat/sdk";
+
+const tracer = trace.getTracer("discordBot");
 
 export const botState = {
   appId: undefined as undefined | string,
@@ -42,28 +69,201 @@ export const desiredProperties = {
   },
 } satisfies RecursivePartial<TransformersDesiredProperties>;
 
-export const bot = createBot({
-  token: DISCORD_TOKEN,
-  intents: Intents.MessageContent | Intents.Guilds | Intents.GuildMessages,
-  desiredProperties,
-  events: {
-    ready(ready) {
-      console.log("Discord bot connected", ready);
-
-      // Set Discord app ID used in `/info` API endpoint.
-      botState.appId = ready.applicationId.toString();
-
-      // Update discord slash commands.
-      bot.helpers.upsertGlobalApplicationCommands(slashCommands);
-    },
-
-    // Handle slash commands
-    async interactionCreate(interaction) {
-      await handleSlashCommandInteraction(interaction);
-    },
-  },
-});
+type DiscordBot = Bot<CompleteDesiredProperties<typeof desiredProperties>>;
 
 export async function startBot() {
+  const bot = createBot({
+    token: DISCORD_TOKEN,
+    intents: Intents.MessageContent | Intents.Guilds | Intents.GuildMessages,
+    desiredProperties,
+    events: {
+      ready(ready) {
+        console.log("Discord bot connected", ready);
+        tracer.startActiveSpan("botReady", (span) => {
+          span.setAttribute(
+            "discordApplicationId",
+            ready.applicationId.toString(),
+          );
+          span.setAttribute("shardId", ready.shardId);
+
+          // Set Discord app ID used in `/info` API endpoint.
+          botState.appId = ready.applicationId.toString();
+
+          // Update discord slash commands.
+          bot.helpers.upsertGlobalApplicationCommands(slashCommands);
+
+          discordLatestMessageInChannel.clear();
+          syncedIds.clear();
+
+          // Backfill messages sent while the bridge was offline
+          backfill(bot, ready.guilds);
+        });
+      },
+
+      // Handle slash commands
+      async interactionCreate(interaction) {
+        await handleSlashCommandInteraction(interaction);
+      },
+    },
+  });
   await bot.start();
+}
+
+export let doneBackfilling = false;
+
+async function backfill(bot: DiscordBot, guildIds: bigint[]) {
+  await tracer.startActiveSpan("backfill", async (span) => {
+    for (const guildId of guildIds) {
+      const spaceId = await registeredBridges.get_spaceId(guildId.toString());
+      if (!spaceId) continue;
+
+      await tracer.startActiveSpan(
+        "backfillGuild",
+        { attributes: { guildId: guildId.toString() } },
+        async (span) => {
+          console.log("backfilling guild", guildId);
+          const channels = await bot.helpers.getChannels(guildId);
+          for (const channel of channels.filter(
+            (x) => x.type == ChannelTypes.GuildText,
+          )) {
+            await tracer.startActiveSpan(
+              "backfillChannel",
+              { attributes: { channelId: channel.id.toString() } },
+              async (span) => {
+                const cachedLatestForChannel =
+                  await discordLatestMessageInChannel.get(
+                    channel.id.toString(),
+                  );
+
+                let after = cachedLatestForChannel
+                  ? BigInt(cachedLatestForChannel)
+                  : "0";
+
+                while (true) {
+                  // Get the next set of messages
+                  const messages = await bot.helpers.getMessages(channel.id, {
+                    after,
+                  });
+                  if (messages.length > 0)
+                    span.addEvent("Fetched new messages", {
+                      count: messages.length,
+                    });
+
+                  console.log(
+                    `    Found ${messages.length} messages since last message.`,
+                  );
+
+                  if (messages.length == 0) break;
+
+                  // Backfill each one that we haven't indexed yet
+                  for (const message of messages.reverse()) {
+                    after = message.id;
+                    await syncDiscordMessageToRoomy({
+                      guildId,
+                      channel,
+                      message,
+                    });
+                  }
+
+                  after &&
+                    (await discordLatestMessageInChannel.put(
+                      channel.id.toString(),
+                      after.toString(),
+                    ));
+                }
+
+                span.end();
+              },
+            );
+          }
+
+          span.end();
+        },
+      );
+    }
+
+    span.end();
+    doneBackfilling = true;
+  });
+}
+
+async function syncDiscordMessageToRoomy(opts: {
+  guildId: bigint;
+  channel: SetupDesiredProps<
+    Channel,
+    CompleteDesiredProperties<NoInfer<typeof desiredProperties>>
+  >;
+  message: SetupDesiredProps<
+    Message,
+    CompleteDesiredProperties<NoInfer<typeof desiredProperties>>
+  >;
+}) {
+  await tracer.startActiveSpan("syncDiscordMessageToRoomy", async (span) => {
+    // Skip if the message is already synced
+    const existingRoomyMessageId = await syncedIds.get_roomyId(
+      opts.message.id.toString(),
+    );
+    if (existingRoomyMessageId) {
+      span.addEvent("messageAlreadySynced", {
+        discordMessageId: opts.message.id.toString(),
+        roomyMessageId: existingRoomyMessageId,
+      });
+      return;
+    }
+
+    const spaceId = await registeredBridges.get_spaceId(
+      opts.guildId.toString(),
+    );
+    if (!spaceId) {
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: "registeredSpaceDoesNotExist",
+      });
+      return;
+    }
+    const space = await RoomyEntity.load(spaceId);
+    if (!space) {
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: "errorLoadingSpace",
+      });
+      return;
+    }
+
+    const permissions = await getComponent(space, SpacePermissionsComponent);
+    if (!permissions) {
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: "spaceMissingPermissions",
+      });
+      return;
+    }
+
+    const existingRoomyThreadId = await syncedIds.get_roomyId(
+      opts.channel.id.toString(),
+    );
+    let roomyThread: co.loaded<typeof RoomyEntity>;
+    if (existingRoomyMessageId) {
+      const thread = await RoomyEntity.load(existingRoomyMessageId);
+      if (!thread) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: "errorLoadingChannel",
+        });
+        return;
+      }
+      roomyThread = thread;
+    } else {
+      // const thread = createThread(channel.name || []);
+    }
+
+    // const roomyMessage = await createMessage(
+    //   messageContent,
+    //   undefined,
+    //   undefined,
+    //   permissions,
+    // );
+
+    span.end();
+  });
 }
