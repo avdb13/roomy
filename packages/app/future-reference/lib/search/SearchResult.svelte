@@ -34,6 +34,18 @@
         id: undefined,
       };
     }
+    if (message.current?.author?.includes("matrix:")) {
+      return {
+        name: message.current?.author
+          ?.substring("matrix:".length)
+          .split("#")[0],
+        imageUrl: decodeURIComponent(
+          message.current?.author?.substring("matrix:".length).split("#")[1] ??
+            "",
+        ),
+        id: undefined,
+      };
+    }
     return profile.current;
   });
 

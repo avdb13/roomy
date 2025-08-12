@@ -32,6 +32,18 @@ export function getProfile(did: string): Promise<ProfileMeta> {
       return;
     }
 
+    if (did.startsWith("matrix:")) {
+      const [nick, avatar] = did.substring("matrix:".length)
+        .split("#");
+      resolve({
+        did,
+        handle: nick!,
+        displayName: nick!,
+        avatarUrl: decodeURIComponent(avatar!),
+      });
+      return;
+    }
+
     user
       .agent!.getProfile({ actor: did })
       .then((resp) => {

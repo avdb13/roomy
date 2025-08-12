@@ -53,6 +53,21 @@
         id: undefined,
       };
     }
+    if (
+      message.current?.components?.[AuthorComponent.id]?.includes("matrix:")
+    ) {
+      return {
+        name: message.current?.components?.[AuthorComponent.id]
+          ?.substring("matrix:".length)
+          .split("#")[0],
+        imageUrl: decodeURIComponent(
+          message.current?.components?.[AuthorComponent.id]
+            ?.substring("matrix:".length)
+            .split("#")[1] ?? "",
+        ),
+        id: undefined,
+      };
+    }
     return profile.current;
   });
 
