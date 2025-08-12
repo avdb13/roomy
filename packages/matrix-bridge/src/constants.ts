@@ -1,0 +1,9 @@
+export const DEFAULT_PORT = 3060;
+export const DELAY_TIME_MS = 10 * 1000;
+export const DELAY_FETCH_ROOM_LIST_MS = 3 * 1000;
+export const DEAD_TIME_MS = 5 * 60 * 1000;
+export const TXN_SIZE_DEFAULT = 10000000; // 10MB
+export const CLIENTS_BY_HOMESERVER_TOP_N = 20;
+export const MEMBERSHIP_DEFAULT_TTL = 10 * 60 * 1000;
+export const NAMESPACE_PREFIX = '_roomy_';
+export const ILLEGAL_CHARACTERS_REGEX = /[^A-Za-z0-9\]\[\^\\\{\}\-`_\|]/g;
