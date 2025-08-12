@@ -1,0 +1,35 @@
+{
+  "name": "matrix-bridge",
+  "version": "1.0.0",
+  "description": "Bridge between Matrix and Roomy",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "NODE_OPTIONS='--import ./src/loader.ts --experimental-wasm-modules --no-deprecation --no-warnings' ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@roomy-chat/sdk": "workspace:*",
+    "@vector-im/matrix-bot-sdk": "0.7.1-element.12",
+    "@whatwg-node/server": "^0.10.12",
+    "dotenv": "^17.2.1",
+    "itty-router": "^5.0.22",
+    "jazz-tools": "catalog:",
+    "js-yaml": "^4.1.0",
+    "matrix-appservice-bridge": "^10.3.3",
+    "nedb": "^1.8.0",
+    "undici": "^7.13.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "winston-transport": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.17.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
